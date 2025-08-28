@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -15,6 +15,13 @@ async function bootstrap() {
     )
     .build();
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // удаляет лишние поля из тела запроса
+      forbidNonWhitelisted: true, // выдаёт ошибку, если есть лишние поля
+      transform: true, // преобразует данные к типам DTO
+    }),
+  );
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   const PORT = process.env.PORT || 3000;
